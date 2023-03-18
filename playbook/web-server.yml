@@ -1,0 +1,38 @@
+- hosts: serverscript
+  become: True
+  tasks:
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=latest
+
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present
+      notify:
+        - restart apache2
+
+    - name: apache2 listen on port {{ http_port }}
+      lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
+
+    - name: apache2 virtualhost on port {{ http_port }}
+      lineinfile: dest=/etc/apache2/sites-available/000-default.conf regexp="^<VirtualHost \*:" line="<VirtualHost *:{{ http_port }}>" state=present
+
+    - name: set up Apache virtualhost - create virtual host file
+      template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ domain }}.conf
+
+    - name: enable new site - a2ensite {{ domain }}
+      command: a2ensite {{ domain }}
+      args:
+        creates: /etc/apache2/sites-enabled/{{ domain }}.conf
+    - name: disable default Apache site
+      ansible.builtin.command: "/usr/sbin/a2dissite 000-default.conf"
+    - name: document root exist
+      ansible.builtin.file:
+        path: "/var/www/{{ domain }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+    - name: open firewall
+      community.general.ufw:
+        rule: allow
+        port: "{{ http_port }}"
+        proto: tcp
+

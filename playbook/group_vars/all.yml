@@ -1,0 +1,10 @@
+db_user: cms_wp_user
+db_pass: cms_wp_user@1234!
+db_name: db_wp_vanilla
+domain: wordpress_cms
+http_port: 8081
+# role: wordpress-install
+app_user: "www-data"
+remote_deploy_home: /var/www
+remote_www_dir: "{{ remote_deploy_home}}/projects"
+remote_wordpress_dir: "{{ remote_www_dir }}/wordpress"

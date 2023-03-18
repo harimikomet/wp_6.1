@@ -1,0 +1,11 @@
+- hosts: serverscript
+  become: True
+  tasks:
+    - name: Deploy cms website
+      copy:
+        src: /dump/sql/20230314.sql
+        dest: /var/www/projects/wordpress/
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted

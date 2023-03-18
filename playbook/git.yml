@@ -1,0 +1,13 @@
+- hosts: serverscript
+  become: True
+  tasks:
+    - name: WP-CLI import db
+          command: wp db import /home/azureuser/repo/wp-cms/wordpress_6.1/dump/sql/20230314.sql
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
